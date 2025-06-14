@@ -12,8 +12,9 @@ import (
 )
 
 //go:embed linux-command.json
-var linuxCommandJsonTemp []byte
+var linuxCommandJsonTemp []byte // 内嵌命令数据模板
 
+// 创建 upcommands 子命令
 func NewUpdateCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "upcommands",
@@ -29,6 +30,7 @@ func NewUpdateCommand() *cobra.Command {
 	}
 }
 
+// 检查本地命令数据文件，不存在则写入内嵌模板
 func CheckCommandJson() ([]byte, error) {
 	cfg := config.GlobalConfig
 	linuxCommandJsonPath := filepath.Join(cfg.DataDir, "linux-command.json")
@@ -47,6 +49,7 @@ func CheckCommandJson() ([]byte, error) {
 	}
 }
 
+// 下载最新命令数据文件
 func downloadLatestJSON() error {
 	cfg := config.GlobalConfig
 	commandDataUrl := cfg.RemoteBaseUrl + "/dist/data.json"

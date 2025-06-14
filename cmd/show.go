@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// 创建 show 子命令
 func NewShowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show <command>",
@@ -32,9 +33,10 @@ func NewShowCommand() *cobra.Command {
 }
 
 var (
-	ErrCommandNotFound = errors.New("command not found")
+	ErrCommandNotFound = errors.New("command not found") // 未找到命令错误
 )
 
+// 展示指定命令的用法，支持强制刷新
 func showCmd(cmd string, force bool) {
 	cfg := config.GlobalConfig
 	cmd = strings.ToLower(cmd)

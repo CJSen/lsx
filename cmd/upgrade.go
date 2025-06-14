@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	maxConcurrency = 6
+	maxConcurrency = 6 // 最大并发数
 )
 
+// 创建 upgrade 子命令
 func NewUpgradeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "upgrade",
@@ -27,6 +28,7 @@ func NewUpgradeCommand() *cobra.Command {
 	return cmd
 }
 
+// 并发升级所有命令数据
 func upgradeCmd() {
 	var num, failed int64
 	l := len(commands)
