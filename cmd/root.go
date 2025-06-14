@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/CJSen/lsx/config"
+	"github.com/CJSen/lsx/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -32,13 +34,7 @@ func Execute() {
 }
 
 func init() {
-	linuxCommandJSON, err := CheckCommandJson()
-	if err != nil {
-		panic("failed to parse linux-command.json: " + err.Error())
-	} else if linuxCommandJSON == nil {
-		panic("failed to parse linux-command.json: file not found")
-	}
-
+	initData()
 	var cmdMap map[string]interface{}
 	if err := json.Unmarshal(linuxCommandJSON, &cmdMap); err != nil {
 		panic("failed to parse linux-command.json: " + err.Error())
@@ -55,4 +51,18 @@ func init() {
 		NewSearchCommand(),
 		NewUpdateCommand(),
 	)
+}
+
+func initData() {
+	_ = config.ParseConfig()
+	err := utils.MakesureDir(config.GlobalConfig.DataDir)
+	if err != nil {
+		panic("failed to create dir")
+	}
+	linuxCommandJSON, err = CheckCommandJson()
+	if err != nil {
+		panic("failed to parse linux-command.json: " + err.Error())
+	} else if linuxCommandJSON == nil {
+		panic("failed to parse linux-command.json: file not found")
+	}
 }

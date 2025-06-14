@@ -1,0 +1,2 @@
+dataDir: "~/.lsx/" # 默认为"~/.lsx/",自定义请写完整路径
+remoteBaseUrl: "https://unpkg.com/linux-command@latest"

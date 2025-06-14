@@ -5,12 +5,13 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/CJSen/lsx/config"
+	"github.com/CJSen/lsx/utils"
 	"github.com/spf13/cobra"
 )
 
 const (
 	maxCurrency = 6
-	maxRetry    = 3
 )
 
 func NewUpgradeCommand() *cobra.Command {
@@ -28,6 +29,7 @@ func NewUpgradeCommand() *cobra.Command {
 func upgradeCmd() {
 	var num, failed int64
 	l := len(commands)
+	cfg := config.GlobalConfig
 
 	ch := make(chan string, 2)
 	wg := sync.WaitGroup{}
@@ -37,7 +39,9 @@ func upgradeCmd() {
 		go func() {
 			defer wg.Done()
 			for cmd := range ch {
-				if err := retryDownloadCmd(cmd); err != nil {
+				url := cfg.RemoteBaseUrl + fmt.Sprintf("/command/%s.md", cmd)
+				path := cfg.DataDir + fmt.Sprintf("%s.md", cmd)
+				if err := utils.RetryDownloadFile(url, path, cmd); err != nil {
 					atomic.AddInt64(&failed, 1)
 				}
 

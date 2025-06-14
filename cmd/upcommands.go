@@ -2,15 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 
+	"github.com/CJSen/lsx/config"
+	"github.com/CJSen/lsx/utils"
 	"github.com/spf13/cobra"
 )
-
-const commandDataUrl = commandUrlBase + "/dist/data.json"
 
 func NewUpdateCommand() *cobra.Command {
 	return &cobra.Command{
@@ -27,28 +25,17 @@ func NewUpdateCommand() *cobra.Command {
 	}
 }
 
-func getPath() (string, error) {
-	c, err := getConfigContent()
-	if err != nil {
-		return "", err
-	}
-
-	if err := makeCmdDir(c.Dir); err != nil {
-		return "", err
-	}
-	path := filepath.Join(c.Dir, linuxCommandJson)
-	return path, nil
-}
-
-func LoadCommandJson(path string) ([]byte, error) {
-	if isFileExist(path) {
-		data, err := os.ReadFile(path)
+func CheckCommandJson() ([]byte, error) {
+	cfg := config.GlobalConfig
+	linuxCommandJsonPath := filepath.Join(cfg.DataDir, "linux-command.json")
+	if utils.FileExists(linuxCommandJsonPath) {
+		data, err := os.ReadFile(linuxCommandJsonPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read existing linux-command.json: %w", err)
 		}
 		return data, nil
 	} else {
-		err := os.WriteFile(path, linuxCommandJsonTemp, 0666)
+		err := os.WriteFile(linuxCommandJsonPath, linuxCommandJsonTemp, 0666)
 		if err != nil {
 			return nil, err
 		}
@@ -56,47 +43,13 @@ func LoadCommandJson(path string) ([]byte, error) {
 	}
 }
 
-func CheckCommandJson() ([]byte, error) {
-
-	linuxCommandJsonPath, err := getPath()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get linux-command.json path: %w", err)
-	}
-	data, err := LoadCommandJson(linuxCommandJsonPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load linux-command.json: %w", err)
-	}
-	return data, nil
-}
-
 func downloadLatestJSON() error {
-	resp, err := http.Get(commandDataUrl)
+	cfg := config.GlobalConfig
+	commandDataUrl := cfg.RemoteBaseUrl + "/dist/data.json"
+	linuxCommandJsonPath := filepath.Join(cfg.DataDir, "linux-command.json")
+	err := utils.RetryDownloadFile(commandDataUrl, linuxCommandJsonPath, "linux-command.json")
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	path, err := getPath()
-	if err != nil {
-		return fmt.Errorf("failed to get path for linux-command.json: %w", err)
-	}
-
-	outFile, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-
-	_, err = io.Copy(outFile, resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to write to linux-command.json: %w", err)
-
-	} else {
-		LoadCommandJson(path)
-	}
-	return err
+	return nil
 }
