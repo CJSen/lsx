@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -20,9 +19,10 @@ import (
 )
 
 const (
-	commandDir = ".commands"
-	commandCfg = "config.json"
-	commandUrl = "https://unpkg.com/linux-command@1.6.1/command/%s.md"
+	commandDir       = ".commands"
+	commandCfg       = "config.json"
+	linuxCommandJson = "linux-command.json"
+	commandUrl       = commandUrlBase + "/command/%s.md"
 )
 
 type config struct {
@@ -57,7 +57,7 @@ func showCmd(cmd string, force bool) {
 
 	if force {
 		if err := retryDownloadCmd(cmd); err != nil {
-			if err == ErrCommandNotFound {
+			if errors.Is(err, ErrCommandNotFound) {
 				fmt.Printf("[sorry]: could not found command <%s>\n", cmd)
 				return
 			}
@@ -71,6 +71,19 @@ func showCmd(cmd string, force bool) {
 		return
 	}
 
+	// 减少文件操作
+	//found := false
+	//for _, str := range commands {
+	//	if str == cmd {
+	//		found = true
+	//		break
+	//	}
+	//}
+	//if !found {
+	//	fmt.Printf("[sorry-for]: could not found command <%s>\n", cmd)
+	//	return
+	//}
+
 	p := path.Join(cfg.Dir, fmt.Sprintf("%s.md", cmd))
 	if !isFileExist(p) {
 		err := retryDownloadCmd(cmd)
@@ -78,13 +91,13 @@ func showCmd(cmd string, force bool) {
 			fmt.Printf("[sorry]: failed to retrieve command <%s>\n", cmd)
 			return
 		}
-		if err == ErrCommandNotFound {
+		if errors.Is(err, ErrCommandNotFound) {
 			fmt.Printf("[sorry]: could not found command <%s>\n", cmd)
 			return
 		}
 	}
 
-	source, err := ioutil.ReadFile(p)
+	source, err := os.ReadFile(p)
 	if err != nil {
 		fmt.Printf("[sorry]: failed to open file <%s>\n", p)
 		return
@@ -118,7 +131,7 @@ func genConfigFile() error {
 
 	if !isFileExist(configPath) {
 		bs, _ := json.Marshal(defaultCfg)
-		return ioutil.WriteFile(configPath, bs, 0666)
+		return os.WriteFile(configPath, bs, 0666)
 	}
 
 	return nil
@@ -129,7 +142,7 @@ func getConfigContent() (*config, error) {
 		return nil, err
 	}
 
-	bs, err := ioutil.ReadFile(configPath)
+	bs, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -193,5 +206,9 @@ func downloadCmd(cmd string) error {
 	}
 
 	fp := path.Join(c.Dir, fmt.Sprintf("%s.md", cmd))
-	return ioutil.WriteFile(fp, content, 0666)
+	err = os.WriteFile(fp, content, 0666)
+	if err != nil {
+		return err
+	}
+	return nil
 }

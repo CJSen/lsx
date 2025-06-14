@@ -6,16 +6,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	version = "pls version: [v0.1.4]"
-)
+var versionInfo string
 
 func NewVersionCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
-		Short: "Prints the version of pls",
+		Short: "Prints the version about lsx",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(version)
+			fmt.Println(versionInfo)
 		},
 	}
 	return cmd

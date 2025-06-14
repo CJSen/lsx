@@ -1,6 +1,6 @@
 package main
 
-import "github.com/chenjiandongx/pls/cmd"
+import "github.com/CJSen/lsx/cmd"
 
 func main() {
 	cmd.Execute()
