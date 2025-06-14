@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var versionInfo = "dev" // 版本信息，默认 dev
+var versionInfo = "0.9.0" // 版本信息，默认 dev
 
 // 创建 version 子命令
 func NewVersionCommand() *cobra.Command {

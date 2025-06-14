@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 匹配 v开头的标签，如 v1.0.0
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'  # 根据项目实际需求调整
+
+      - name: Build binaries
+        run: |
+          # 创建临时构建目录
+          mkdir -p dist
+
+          # 定义构建矩阵
+          OS_LIST="linux darwin windows"
+          ARCH_LIST="amd64 arm64"
+
+          # 交叉编译所有组合
+          for os in $OS_LIST; do
+            for arch in $ARCH_LIST; do
+              suffix=""
+              if [ "$os" = "windows" ]; then
+                suffix=".exe"
+              fi
+
+              output="dist/lsx_${os}_${arch}${suffix}"
+              echo "🛠 Building $output..."
+
+              GOOS=$os GOARCH=$arch go build -o "$output" .
+
+              # 压缩文件（可选）
+              zip -j "${output}.zip" "$output"
+              rm "$output"  # 删除未压缩文件
+            done
+          done
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
