@@ -8,13 +8,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// 配置结构体，包含数据目录和远程数据源
+// DataDir: 本地数据存储目录
+// RemoteBaseUrl: 远程命令数据源地址
 type Config struct {
 	DataDir       string `yaml:"dataDir"`
 	RemoteBaseUrl string `yaml:"remoteBaseUrl"`
 }
 
-var GlobalConfig *Config
+var GlobalConfig *Config // 全局配置实例
 
+// 返回默认配置
 func defaultConfig() *Config {
 	homeDir, _ := os.UserHomeDir()
 	return &Config{
@@ -23,6 +27,7 @@ func defaultConfig() *Config {
 	}
 }
 
+// 加载配置，优先环境变量 LSXCONFIG
 func loadConfig() (*Config, string) {
 	cfg := defaultConfig()
 	configFile := os.Getenv("LSXCONFIG")
@@ -39,6 +44,7 @@ func loadConfig() (*Config, string) {
 	return cfg, configFile
 }
 
+// 解析配置并设置全局变量
 func ParseConfig() *Config {
 	cfg, _ := loadConfig()
 	GlobalConfig = cfg

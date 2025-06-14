@@ -10,13 +10,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// 结构使用 https://raw.githubusercontent.com/jaywcjlove/linux-command/master/dist/data.json
+// commandIndex 结构体，映射命令索引数据
+// 对应 https://raw.githubusercontent.com/jaywcjlove/linux-command/master/dist/data.json
+// n: 命令名，p: 路径，d: 描述
 type commandIndex struct {
 	Name        string `json:"n"`
 	Path        string `json:"p"`
 	Description string `json:"d"`
 }
 
+// 创建 search 子命令
 func NewSearchCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search <command>",
@@ -32,24 +35,35 @@ func NewSearchCommand() *cobra.Command {
 	return cmd
 }
 
-func unmarshalIndex() map[string]commandIndex {
+// 反序列化命令索引数据
+func unmarshalIndex() (map[string]commandIndex, error) {
 	ret := make(map[string]commandIndex)
-	_ = json.Unmarshal(linuxCommandJSON, &ret)
-	return ret
+	err := json.Unmarshal(linuxCommandJSON, &ret)
+	return ret, err
 }
 
+// 执行命令搜索
 func searchCmd(keywords string) {
 	keywords = strings.ToLower(keywords)
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.Append([]string{"command", "description"})
 
-	for k, v := range unmarshalIndex() {
-		desc := strings.ToLower(v.Description)
-		if strings.Contains(desc, keywords) || strings.Contains(strings.ToLower(k), keywords) {
-			table.Append([]string{k, v.Description})
+	found := false
+	index, err := unmarshalIndex()
+	if err != nil {
+		fmt.Println("[error]: failed to parse command index:", err)
+		return
+	}
+	for _, v := range index {
+		if strings.Contains(strings.ToLower(v.Name), keywords) || strings.Contains(strings.ToLower(v.Description), keywords) {
+			table.Append([]string{v.Name, v.Description})
+			found = true
 		}
 	}
-
-	table.Render()
+	if found {
+		table.Render()
+	} else {
+		fmt.Println("[sorry]: no command found for", keywords)
+	}
 }
