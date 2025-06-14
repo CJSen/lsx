@@ -47,7 +47,8 @@ func showCmd(cmd string, force bool) {
 				fmt.Printf("[sorry]: could not found command <%s>\n", cmd)
 				return
 			}
-			fmt.Printf("[sorry]: failed to download command <%s>\n", cmd)
+			fmt.Printf("[sorry]: failed to download command <%s>: %v\n", cmd, err)
+			return
 		}
 	}
 
@@ -55,7 +56,7 @@ func showCmd(cmd string, force bool) {
 	if !utils.FileExists(p) {
 		err := utils.RetryDownloadFile(url, path, cmd)
 		if err != nil {
-			fmt.Printf("[sorry]: failed to retrieve command <%s>\n", cmd)
+			fmt.Printf("[sorry]: failed to retrieve command <%s>: %v\n", cmd, err)
 			return
 		}
 		if errors.Is(err, ErrCommandNotFound) {
@@ -66,10 +67,17 @@ func showCmd(cmd string, force bool) {
 
 	source, err := os.ReadFile(p)
 	if err != nil {
-		fmt.Printf("[sorry]: failed to open file <%s>\n", p)
+		fmt.Printf("[sorry]: failed to open file <%s>: %v\n", p, err)
 		return
 	}
+	result := ""
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("[error]: failed to render markdown.")
+			fmt.Println(string(source))
+		}
+	}()
 	markdown.BlueBgItalic = color.New(color.FgBlue).SprintFunc()
-	result := markdown.Render(string(source), 80, 6)
-	fmt.Println(string(result))
+	result = string(markdown.Render(string(source), 80, 6))
+	fmt.Println(result)
 }

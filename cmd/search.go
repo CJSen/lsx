@@ -32,10 +32,10 @@ func NewSearchCommand() *cobra.Command {
 	return cmd
 }
 
-func unmarshalIndex() map[string]commandIndex {
+func unmarshalIndex() (map[string]commandIndex, error) {
 	ret := make(map[string]commandIndex)
-	_ = json.Unmarshal(linuxCommandJSON, &ret)
-	return ret
+	err := json.Unmarshal(linuxCommandJSON, &ret)
+	return ret, err
 }
 
 func searchCmd(keywords string) {
@@ -44,12 +44,23 @@ func searchCmd(keywords string) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.Append([]string{"command", "description"})
 
-	for k, v := range unmarshalIndex() {
+	found := false
+	index, err := unmarshalIndex()
+	if err != nil {
+		fmt.Println("[error]: failed to parse command index:", err)
+		return
+	}
+	for k, v := range index {
 		desc := strings.ToLower(v.Description)
 		if strings.Contains(desc, keywords) || strings.Contains(strings.ToLower(k), keywords) {
 			table.Append([]string{k, v.Description})
+			found = true
 		}
 	}
 
+	if !found {
+		fmt.Println("[info]: no matching command found.")
+		return
+	}
 	table.Render()
 }

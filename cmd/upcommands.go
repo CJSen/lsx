@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,9 @@ import (
 	"github.com/CJSen/lsx/utils"
 	"github.com/spf13/cobra"
 )
+
+//go:embed linux-command.json
+var linuxCommandJsonTemp []byte
 
 func NewUpdateCommand() *cobra.Command {
 	return &cobra.Command{
