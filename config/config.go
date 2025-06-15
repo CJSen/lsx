@@ -14,6 +14,7 @@ import (
 type Config struct {
 	DataDir       string `yaml:"dataDir"`
 	RemoteBaseUrl string `yaml:"remoteBaseUrl"`
+	UseLess       bool   `yaml:"useLess"`
 }
 
 var GlobalConfig *Config // 全局配置实例
@@ -22,8 +23,9 @@ var GlobalConfig *Config // 全局配置实例
 func defaultConfig() *Config {
 	homeDir, _ := os.UserHomeDir()
 	return &Config{
-		DataDir:       filepath.Join(homeDir, ".lsx"), // 默认路径 ~/.lsx
+		DataDir:       filepath.Join(homeDir, ".lsx"), // dataDir: "/Users/css/.lsx" # 默认为"~/.lsx",自定义请写完整目录路径（自定义时不要使用～，结尾不要有/）
 		RemoteBaseUrl: "https://unpkg.com/linux-command@latest",
+		UseLess:       false,
 	}
 }
 

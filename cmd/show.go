@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -81,5 +82,14 @@ func showCmd(cmd string, force bool) {
 	}()
 	markdown.BlueBgItalic = color.New(color.FgBlue).SprintFunc()
 	result = string(markdown.Render(string(source), 80, 6))
-	fmt.Println(result)
+
+	if config.GlobalConfig != nil && config.GlobalConfig.UseLess {
+		cmd := exec.Command("less")
+		cmd.Stdin = strings.NewReader(result)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		_ = cmd.Run()
+	} else {
+		fmt.Println(result)
+	}
 }

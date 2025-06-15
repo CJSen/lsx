@@ -1,2 +1,3 @@
-dataDir: "~/.lsx/" # 默认为"~/.lsx/",自定义请写完整路径
-remoteBaseUrl: "https://unpkg.com/linux-command@latest"
+dataDir: "/Users/css/.lsx" # 默认为"~/.lsx",自定义请写完整目录路径（自定义时不要使用～，结尾不要有/）
+remoteBaseUrl: "https://unpkg.com/linux-command@latest" # 下载数据的远程仓库
+useLess:  false # 默认不以less分页输出，可通过手动方式输出：lsx show ls | less（windows可能不起作用）
