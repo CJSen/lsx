@@ -33,6 +33,9 @@ https://github.com/CJSen/lsx/releases
 
 3) 相关命令使用方法
 
+<img width="601" alt="Image" src="https://raw.githubusercontent.com/CJSen/cjsen.github.io/main/static/images/lsx-cmd.gif" />
+<img width="601" alt="Image" src="https://raw.githubusercontent.com/CJSen/cjsen.github.io/main/static/images/lsx-search.gif" />
+
 ```shell
 ~ lsx -h
 Impressive Linux commands cheat sheet cli.
