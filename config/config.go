@@ -14,7 +14,7 @@ import (
 type Config struct {
 	DataDir       string `yaml:"dataDir"`
 	RemoteBaseUrl string `yaml:"remoteBaseUrl"`
-	UseShow       bool   `yaml:"useshow"`
+	UseShow       bool   `yaml:"useShow"`
 }
 
 var GlobalConfig *Config // 全局配置实例
