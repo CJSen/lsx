@@ -29,8 +29,47 @@ func Execute() {
 	}
 }
 
+// initData 初始化配置和命令数据
+func initData() {
+	// 初始化配置
+	_ = config.ParseConfig()
+
+	// 确保数据目录存在，否则会报错
+	err := utils.MakesureDir(config.GlobalConfig.DataDir)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create dir: %v", err))
+	}
+	var err2 error
+	// 检查并加载命令数据
+	linuxCommandJSON, err2 = CheckCommandJson()
+	if err2 != nil {
+		panic(fmt.Sprintf("failed to parse linux-command.json: %v", err2))
+	} else if linuxCommandJSON == nil {
+		panic("failed to parse linux-command.json: file not found")
+	}
+}
+
 func init() {
-	initData() // 初始化数据和配置
+	// 初始化数据和配置
+	initData()
+	// 自定义 help 输出
+	rootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		fmt.Println("Impressive Linux commands cheat sheet cli.")
+		fmt.Println("Usage:")
+		fmt.Println("  lsx [command]")
+		fmt.Println("\nAvailable Commands:")
+		if !config.GlobalConfig.UseShow {
+			fmt.Println("  your-cmd    Enter the specified command to show its usage.")
+		}
+		if config.GlobalConfig.UseShow {
+			fmt.Println("  show        Show the specified command usage.")
+		}
+		fmt.Println("  search      Search command by keywords")
+		fmt.Println("  upcommands  Update the embedded linux-command.json to the latest version.")
+		fmt.Println("  upgrade     Upgrade all commands from remote.")
+		fmt.Println("  version     Prints the version about lsx")
+		fmt.Println("  help        Help about any command")
+	})
 	cmdMap := make(map[string]interface{})
 	if err := json.Unmarshal(linuxCommandJSON, &cmdMap); err != nil {
 		panic(fmt.Sprintf("failed to parse linux-command.json: %v\ncontent: %.128s", err, string(linuxCommandJSON)))
@@ -69,25 +108,5 @@ func init() {
 			NewSearchCommand(),
 			NewUpdateCommand(),
 		)
-	}
-}
-
-// initData 初始化配置和命令数据
-func initData() {
-	// 初始化配置
-	_ = config.ParseConfig()
-
-	// 确保数据目录存在，否则会报错
-	err := utils.MakesureDir(config.GlobalConfig.DataDir)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create dir: %v", err))
-	}
-	var err2 error
-	// 检查并加载命令数据
-	linuxCommandJSON, err2 = CheckCommandJson()
-	if err2 != nil {
-		panic(fmt.Sprintf("failed to parse linux-command.json: %v", err2))
-	} else if linuxCommandJSON == nil {
-		panic("failed to parse linux-command.json: file not found")
 	}
 }
