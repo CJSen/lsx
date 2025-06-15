@@ -41,9 +41,7 @@ for os in "${OS_LIST[@]}"; do
   done
 done
 
-# 仅对非 Windows 可执行文件加执行权限
-# chmod +x lsx_linux_amd64 lsx_darwin_amd64 || true
 # 复制 macOS 版本到本地 bin 目录，方便直接调用
-# cp lsx_darwin_amd64 ~/.local/bin/lsx
+# cp lsx_darwin_arm64 ~/.local/bin/lsx
 # 列出所有 lsx 可执行文件
 ls | grep lsx

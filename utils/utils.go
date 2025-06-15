@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -67,6 +68,7 @@ func DownloadFile(url string, path string, cmd string) error {
 
 // 重试下载文件，直到成功或达到最大重试次数
 func RetryDownloadFile(url string, path string, cmd string) error {
+	fmt.Println("[info] Downloading " + cmd + ".md ...")
 	for j := 0; j < maxRetry; j++ {
 		if err := DownloadFile(url, path, cmd); err != nil {
 			continue

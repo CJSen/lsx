@@ -57,6 +57,7 @@ func showCmd(cmd string, force bool) {
 
 	p := filepath.Join(cfg.DataDir, fmt.Sprintf("%s.md", cmd))
 	if !utils.FileExists(p) {
+		fmt.Printf("[sorry]: could not found command <%s>, it will be try to download \n", cmd)
 		err := utils.RetryDownloadFile(url, path, cmd)
 		if err != nil {
 			fmt.Printf("[sorry]: failed to retrieve command <%s>: %v\n", cmd, err)
