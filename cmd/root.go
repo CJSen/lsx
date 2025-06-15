@@ -40,14 +40,36 @@ func init() {
 		commands = append(commands, k)
 	}
 
-	// 注册各子命令
-	rootCmd.AddCommand(
-		NewShowCommand(),
-		NewUpgradeCommand(),
-		NewVersionCommand(),
-		NewSearchCommand(),
-		NewUpdateCommand(),
-	)
+	// 根据配置决定注册方式
+	if config.GlobalConfig.UseShow {
+		// 兼容旧方式，注册 show 子命令
+		rootCmd.AddCommand(
+			NewShowCommand(),
+			NewUpgradeCommand(),
+			NewVersionCommand(),
+			NewSearchCommand(),
+			NewUpdateCommand(),
+		)
+	} else {
+		// 注册所有一级命令
+		for _, cmdName := range commands {
+			cmd := &cobra.Command{
+				Use:   cmdName,
+				Short: fmt.Sprintf("Show usage for %s", cmdName),
+				Run: func(cmd *cobra.Command, args []string) {
+					showCmd(cmd.Use, false)
+				},
+			}
+			rootCmd.AddCommand(cmd)
+		}
+		// 其他功能性命令依然注册
+		rootCmd.AddCommand(
+			NewUpgradeCommand(),
+			NewVersionCommand(),
+			NewSearchCommand(),
+			NewUpdateCommand(),
+		)
+	}
 }
 
 // initData 初始化配置和命令数据

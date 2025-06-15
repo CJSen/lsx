@@ -14,6 +14,7 @@ import (
 type Config struct {
 	DataDir       string `yaml:"dataDir"`
 	RemoteBaseUrl string `yaml:"remoteBaseUrl"`
+	UseShow       bool   `yaml:"useshow"`
 }
 
 var GlobalConfig *Config // 全局配置实例
@@ -24,6 +25,7 @@ func defaultConfig() *Config {
 	return &Config{
 		DataDir:       filepath.Join(homeDir, ".lsx"), // 默认路径 ~/.lsx
 		RemoteBaseUrl: "https://unpkg.com/linux-command@latest",
+		UseShow:       false,
 	}
 }
 
